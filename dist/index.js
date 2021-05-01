@@ -54,12 +54,14 @@ function run() {
             const coverage = JSON.parse(json);
             const symbols = Array();
             for (const [key, value] of Object.entries(coverage['kinds'])) {
-                core.info(`Key: ${key}, Value: ${value}`);
                 symbols.push({
                     name: key,
-                    documented_number: parseInt(coverage['kinds']['documented_symbol_count'], 10),
-                    total_number: parseInt(coverage['kinds']['symbol_count'], 10)
+                    documented_number: coverage['kinds'][key]['documented_symbol_count'],
+                    total_number: coverage['kinds'][key]['symbol_count']
                 });
+                core.info(`key: ${key}`);
+                core.info(`documented_symbol_count: ${coverage['kinds'][key]['documented_symbol_count']}`);
+                core.info(`symbol_count: ${coverage['kinds'][key]['symbol_count']}`);
             }
             const html = template_1.get_html(symbols);
             fs_1.writeFileSync(summary, html, { encoding: 'utf8' });
@@ -193,7 +195,7 @@ function get_html(symbols) {
         body += `
             <tr>
                 <td class="symbol-col">${symbol.name}</td>
-                <td class="ratio-col"><span class="red">${symbol.documented_number}</span>/${symbol.total_number}</td>
+                <td class="ratio-col"><span class="complete-documentation">${symbol.documented_number}</span>/${symbol.total_number}</td>
                 <td class="percentage-bar-col">
                     <div class="partial-percentage-bar" style="
                         --percentage-bar-color: ${symbol.documented_number === symbol.total_number ? 'green' : 'red'}; 
