@@ -21,12 +21,14 @@ async function run(): Promise<void> {
 
         const symbols: Symbol[] = Array<Symbol>()
         for (const [key, value] of Object.entries(coverage['kinds'])) {
-            core.info(`Key: ${key}, Value: ${value}`)
             symbols.push({
                 name: key,
                 documented_number: coverage['kinds'][key]['documented_symbol_count'],
-                total_number: coverage['kinds'][key]['symbol_count'],
+                total_number: coverage['kinds'][key]['symbol_count']
             })
+            core.info(`key: ${key}`)
+            core.info(`documented_symbol_count: ${coverage['kinds'][key]['documented_symbol_count']}`)
+            core.info(`symbol_count: ${coverage['kinds'][key]['symbol_count']}`)
         }
 
         const html: string = get_html(symbols)
