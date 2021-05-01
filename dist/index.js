@@ -38,34 +38,68 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__webpack_require__(186));
 const fs_1 = __webpack_require__(747);
+//import nodeHtmlToImage from 'node-html-to-image'
 const template_1 = __webpack_require__(32);
 // import { wait } from './wait'
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
-            const src = core.getInput('src');
-            core.info(`Input file path is ${src}`);
-            const summary = core.getInput('summary');
-            core.info(`Summary file path is ${summary}`);
-            // Retrieve JSON from file
-            const json = fs_1.readFileSync(src, 'utf8');
-            core.info(`Received JSON ${src}`);
+            // Use core.info for now to simplify things
+            // Get action inputs
+            const src_path = core.getInput('src');
+            const html_path = core.getInput('html');
+            const image_path = core.getInput('image');
+            const output_type = core.getInput('output');
+            // Log the inputs back out for debugging
+            core.info(`Source file path is ${src_path} (input file)`);
+            core.info(`HTML file path is ${html_path} (output file)`);
+            core.info(`Image file path is ${image_path} (output file)`);
+            if (output_type === 'html' || output_type === 'image') {
+                core.info(`Output type is  ${output_type} (option)`);
+            }
+            else {
+                core.setFailed('Output type invalid');
+            }
+            // Retrieve JSON from source file
+            const json = fs_1.readFileSync(src_path, 'utf8');
             const coverage = JSON.parse(json);
+            // Parse coverxygen JSON output
             const symbols = Array();
             for (const [key, value] of Object.entries(coverage['kinds'])) {
-                symbols.push({
+                const symbol = {
                     name: key,
                     documented_number: parseInt(coverage['kinds'][key]['documented_symbol_count']),
                     total_number: parseInt(coverage['kinds'][key]['symbol_count'])
-                });
-                core.info(`key: ${key}`);
-                core.info(`documented_symbol_count: ${parseInt(coverage['kinds'][key]['documented_symbol_count'])}`);
-                core.info(`symbol_count: ${parseInt(coverage['kinds'][key]['symbol_count'])}`);
+                };
+                symbols.push(symbol);
+                core.info(JSON.stringify(symbol));
             }
-            const html = template_1.get_html(symbols);
-            fs_1.writeFileSync(summary, html, { encoding: 'utf8' });
-            core.setOutput('time', new Date().toTimeString());
+            // Generate the HTML output
+            const html_output = template_1.getHtml(symbols);
+            // Write the HTML output to a file if needed
+            if (output_type === 'html') {
+                fs_1.writeFileSync(html_output, html_output, { encoding: 'utf8' });
+            }
+            // Create the image if needed
+            if (output_type === 'image') {
+                /*
+                let image_type = 'png'
+                if (image_path.endsWith('.jpg')) {
+                    image_type = 'jpg'
+                } else if (image_path.endsWith('.png')) {
+                    image_type = 'png'
+                } else {
+                    core.setFailed('Image file extension is invalid')
+                }
+                nodeHtmlToImage({
+                    output: './image.jpg',
+                    html: html_output,
+                    type: image_type,
+                    encoding: 'binary'
+                })
+                */
+            }
         }
         catch (error) {
             core.setFailed(error.message);
@@ -101,7 +135,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.get_html = void 0;
+exports.getHtml = void 0;
 const core = __importStar(__webpack_require__(186));
 const css = `
 .missing-documentation {
@@ -189,7 +223,7 @@ th, td {
     padding: 5px;
 }
 `;
-function get_html(symbols) {
+function getHtml(symbols) {
     const title = 'Documentation Coverage';
     const head = `
         <head>
@@ -257,7 +291,7 @@ function get_html(symbols) {
     `;
     return html;
 }
-exports.get_html = get_html;
+exports.getHtml = getHtml;
 
 
 /***/ }),
