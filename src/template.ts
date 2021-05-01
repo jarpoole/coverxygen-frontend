@@ -97,7 +97,6 @@ export function get_html(symbols: Symbol[]): string {
         <head>
             <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
             <title>${title}</title>
-            <link rel="stylesheet" type="text/css" href="summary.css">
             <style>${css}</style>
         </head>
     `
@@ -117,16 +116,18 @@ export function get_html(symbols: Symbol[]): string {
     for (const symbol of symbols) {
         const percentage = Math.floor(symbol.documented_number / symbol.total_number) * 100
         body += `
-            <td class="symbol-col">${symbol.name}</td>
-            <td class="ratio-col"><span class="red">${symbol.documented_number}</span>/${symbol.total_number}</td>
-            <td class="percentage-bar-col">
-                <div class="partial-percentage-bar" style="
-                    --percentage-bar-color: ${symbol.documented_number === symbol.total_number ? 'green' : 'red'}; 
-                    --percentage-bar-text:'${percentage}%'; 
-                    --percentage-bar-value: ${percentage}%;
-                    ">
-                </div>
-            </td>
+            <tr>
+                <td class="symbol-col">${symbol.name}</td>
+                <td class="ratio-col"><span class="red">${symbol.documented_number}</span>/${symbol.total_number}</td>
+                <td class="percentage-bar-col">
+                    <div class="partial-percentage-bar" style="
+                        --percentage-bar-color: ${symbol.documented_number === symbol.total_number ? 'green' : 'red'}; 
+                        --percentage-bar-text:'${percentage}%'; 
+                        --percentage-bar-value: ${percentage}%;
+                        ">
+                    </div>
+                </td>
+            </tr>
         `
     }
     // Close table tag
