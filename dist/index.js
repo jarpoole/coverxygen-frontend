@@ -56,12 +56,12 @@ function run() {
             for (const [key, value] of Object.entries(coverage['kinds'])) {
                 symbols.push({
                     name: key,
-                    documented_number: coverage['kinds'][key]['documented_symbol_count'],
-                    total_number: coverage['kinds'][key]['symbol_count']
+                    documented_number: parseInt(coverage['kinds'][key]['documented_symbol_count']),
+                    total_number: parseInt(coverage['kinds'][key]['symbol_count'])
                 });
                 core.info(`key: ${key}`);
-                core.info(`documented_symbol_count: ${coverage['kinds'][key]['documented_symbol_count']}`);
-                core.info(`symbol_count: ${coverage['kinds'][key]['symbol_count']}`);
+                core.info(`documented_symbol_count: ${parseInt(coverage['kinds'][key]['documented_symbol_count'])}`);
+                core.info(`symbol_count: ${parseInt(coverage['kinds'][key]['symbol_count'])}`);
             }
             const html = template_1.get_html(symbols);
             fs_1.writeFileSync(summary, html, { encoding: 'utf8' });
@@ -191,7 +191,7 @@ function get_html(symbols) {
     `;
     // Add symbols rows
     for (const symbol of symbols) {
-        const percentage = Math.floor(symbol.documented_number / symbol.total_number) * 100;
+        const percentage = Math.floor((symbol.documented_number / symbol.total_number) * 100);
         body += `
             <tr>
                 <td class="symbol-col">${symbol.name}</td>

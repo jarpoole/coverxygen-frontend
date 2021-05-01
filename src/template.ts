@@ -114,7 +114,7 @@ export function get_html(symbols: Symbol[]): string {
     `
     // Add symbols rows
     for (const symbol of symbols) {
-        const percentage = Math.floor(symbol.documented_number / symbol.total_number) * 100
+        const percentage = Math.floor( (symbol.documented_number / symbol.total_number) * 100)
         body += `
             <tr>
                 <td class="symbol-col">${symbol.name}</td>
