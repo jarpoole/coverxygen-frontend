@@ -93,7 +93,7 @@ export interface Symbol {
     total_number: number
 }
 
-export function get_html(symbols: Symbol[]): string {
+export function getHtml(symbols: Symbol[]): string {
     const title = 'Documentation Coverage'
     const head = `
         <head>
