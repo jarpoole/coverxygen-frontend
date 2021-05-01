@@ -46,7 +46,7 @@ async function run(): Promise<void> {
 
         // Write the HTML output to a file if needed
         if (output_type === 'html') {
-            writeFileSync(html_output, html_output, { encoding: 'utf8' })
+            writeFileSync(html_path, html_output, { encoding: 'utf8' })
         }
 
         // Create the image if needed
