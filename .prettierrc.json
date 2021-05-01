@@ -1,5 +1,5 @@
 {
-  "printWidth": 80,
+  "printWidth": 180,
   "tabWidth": 4,
   "useTabs": false,
   "semi": false,
@@ -7,5 +7,5 @@
   "trailingComma": "none",
   "bracketSpacing": true,
   "arrowParens": "avoid",
-  "endOfLine":"crlf"
+  "endOfLine": "crlf"
 }

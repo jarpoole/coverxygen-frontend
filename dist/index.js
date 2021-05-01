@@ -37,18 +37,32 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__webpack_require__(186));
+const fs_1 = __webpack_require__(747);
+const template_1 = __webpack_require__(32);
 // import { wait } from './wait'
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
-            const in_file = core.getInput('coverxygen-in');
-            core.info(`Input file is ${in_file}`);
-            /*
-            core.debug(new Date().toTimeString())
-            await wait(parseInt(ms, 10))
-            core.debug(new Date().toTimeString())
-            */
+            const src = core.getInput('src');
+            core.info(`Input file path is ${src}`);
+            const summary = core.getInput('summary');
+            core.info(`Summary file path is ${summary}`);
+            // Retrieve JSON from file
+            const json = fs_1.readFileSync(src, 'utf8');
+            core.info(`Received JSON ${src}`);
+            const coverage = JSON.parse(json);
+            const symbols = Array();
+            for (const [key, value] of Object.entries(coverage['kinds'])) {
+                core.info(`Key: ${key}, Value: ${value}`);
+                symbols.push({
+                    name: key,
+                    documented_number: coverage['kinds']['documented_symbol_count'],
+                    total_number: coverage['kinds']['symbol_count']
+                });
+            }
+            const html = template_1.get_html(symbols);
+            fs_1.writeFileSync(summary, html, { encoding: 'utf8' });
             core.setOutput('time', new Date().toTimeString());
         }
         catch (error) {
@@ -57,6 +71,167 @@ function run() {
     });
 }
 run();
+
+
+/***/ }),
+
+/***/ 32:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.get_html = void 0;
+const css = `
+.missing-documentation {
+    color: red;
+}
+.complete-documentation{
+    color: green;
+}
+/* Table row styling */
+.symbol-col{
+    width: min-content;  /* Row width should be the minimum required to contain all text */
+    white-space: nowrap; /* Keep all text on a single line */
+}
+.ratio-col{
+    text-align: center;
+    width: 30%;
+}
+.percentage-bar-col{
+    width: 70%;
+}
+body {
+    background-color: rgb(168, 168, 168);
+}
+.partial-percentage-bar{
+    position: relative;
+    overflow: hidden; /* Ensures that the 'before' element doesn't overflow the div */
+    width: auto;
+    border: 3px solid black;
+    border-radius: 1rem;
+
+    margin-left: 1rem;
+    margin-right: 1rem;
+    height: 1rem;
+    
+}
+.partial-percentage-bar::before {
+    content: var(--percentage-bar-text);
+    font-weight: bold;
+    text-align: center;
+    padding-left: 0rem;
+    position: absolute; /* Position in direct correlation to the parent div */
+    left: 0;            /* lock the left edge against the left edge of the parent div */
+    height: 100%;  
+    width: var(--percentage-bar-value);    
+    background-color: var(--percentage-bar-color);
+}
+.total-percentage-bar{
+    position: relative;
+    overflow: hidden; /* Ensures that the 'before' element doesn't overflow the div */
+    width: auto;
+    border: 3px solid black;
+    border-radius: 1rem;
+
+    height: 1.8rem;
+    
+}
+.total-percentage-bar::before {
+    display: flex;
+    content: var(--percentage-bar-text);
+    font-weight: bold;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    padding-left: 0rem;
+    position: absolute; /* Position in direct correlation to the parent div */
+    left: 0;            /* lock the left edge against the left edge of the parent div */
+    height: 100%;       
+    width: var(--percentage-bar-value);
+    background-color: var(--percentage-bar-color);
+}
+table {
+    width: 100%;
+    margin-right: 1rem; /* Center the table in the viewport */
+}  
+th {
+    text-align: left;
+}
+table, th, td {
+    border: 50;
+    border-color: black;
+    border-style: solid; 
+    border-collapse: collapse; /* Merge the individual table, th and td borders together into one border */
+}
+th, td {
+    padding: 5px;
+}
+`;
+function get_html(symbols) {
+    const title = 'Documentation Coverage';
+    const head = `
+        <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+            <title>${title}</title>
+            <link rel="stylesheet" type="text/css" href="summary.css">
+            <style>${css}</style>
+        </head>
+    `;
+    // Define body
+    let body = `<body>`;
+    // Add table
+    body += `<table class="results">`;
+    // Add table column headers
+    body += `
+        <tr>
+            <th class="symbol-col">Symbol type</th>
+            <th colspan="2">Coverage</th>
+        </tr>
+    `;
+    // Add symbols rows
+    for (const symbol of symbols) {
+        const percentage = Math.floor(symbol.documented_number / symbol.total_number) * 100;
+        body += `
+            <td class="symbol-col">${symbol.name}</td>
+            <td class="ratio-col"><span class="red">${symbol.documented_number}</span>/${symbol.total_number}</td>
+            <td class="percentage-bar-col">
+                <div class="partial-percentage-bar" style="
+                    --percentage-bar-color: ${symbol.documented_number === symbol.total_number ? 'green' : 'red'}; 
+                    --percentage-bar-text:'${percentage}%'; 
+                    --percentage-bar-value: ${percentage}%;
+                    ">
+                </div>
+            </td>
+        `;
+    }
+    // Close table tag
+    body += `</table>`;
+    const all_documented = symbols.reduce((total, symbol) => {
+        return total + symbol.documented_number;
+    }, 0);
+    const all_symbols = symbols.reduce((total, symbol) => {
+        return total + symbol.total_number;
+    }, 0);
+    const all_percentage = Math.floor(all_documented / all_symbols) * 100;
+    // Add summary section
+    body += `
+        <h1 style="font-size: 1.5rem;">Overal Documentation Health</h1>
+        <div class="total-percentage-bar" style="
+            --percentage-bar-color: ${all_documented === all_symbols ? 'green' : 'red'}; 
+            --percentage-bar-text:'${all_percentage}%'; 
+            --percentage-bar-value: ${all_percentage}%;
+        "></div>
+`;
+    const html = `
+        <!doctype html>
+        <html lang="en">
+        ${head}
+        ${body}
+        </html>
+    `;
+    return html;
+}
+exports.get_html = get_html;
 
 
 /***/ }),
