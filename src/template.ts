@@ -1,3 +1,5 @@
+import * as core from '@actions/core'
+
 const css = `
 .missing-documentation {
     color: red;
@@ -114,7 +116,7 @@ export function get_html(symbols: Symbol[]): string {
     `
     // Add symbols rows
     for (const symbol of symbols) {
-        const percentage = Math.floor( (symbol.documented_number / symbol.total_number) * 100)
+        const percentage = Math.floor((symbol.documented_number / symbol.total_number) * 100)
         body += `
             <tr>
                 <td class="symbol-col">${symbol.name}</td>
@@ -139,11 +141,15 @@ export function get_html(symbols: Symbol[]): string {
     const all_symbols: number = symbols.reduce((total, symbol) => {
         return total + symbol.total_number
     }, 0)
-    const all_percentage = Math.floor(all_documented / all_symbols) * 100
+    const all_percentage = Math.floor((all_documented / all_symbols) * 100)
+
+    core.info(`Documented symbols ${all_documented}`)
+    core.info(`All symbols ${all_symbols}`)
+    core.info(`Percentage ${all_percentage}`)
 
     // Add summary section
     body += `
-        <h1 style="font-size: 1.5rem;">Overal Documentation Health</h1>
+        <h1 style="font-size: 1.5rem;">Overall Documentation Health</h1>
         <div class="total-percentage-bar" style="
             --percentage-bar-color: ${all_documented === all_symbols ? 'green' : 'red'}; 
             --percentage-bar-text:'${all_percentage}%'; 

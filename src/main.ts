@@ -27,8 +27,8 @@ async function run(): Promise<void> {
                 total_number: parseInt(coverage['kinds'][key]['symbol_count'])
             })
             core.info(`key: ${key}`)
-            core.info(`documented_symbol_count: ${ parseInt(coverage['kinds'][key]['documented_symbol_count'])}`)
-            core.info(`symbol_count: ${ parseInt(coverage['kinds'][key]['symbol_count'])}`)
+            core.info(`documented_symbol_count: ${parseInt(coverage['kinds'][key]['documented_symbol_count'])}`)
+            core.info(`symbol_count: ${parseInt(coverage['kinds'][key]['symbol_count'])}`)
         }
 
         const html: string = get_html(symbols)
