@@ -24,8 +24,8 @@ async function run(): Promise<void> {
             core.info(`Key: ${key}, Value: ${value}`)
             symbols.push({
                 name: key,
-                documented_number: parseInt(coverage['kinds'][key]['documented_symbol_count'], 10),
-                total_number: parseInt(coverage['kinds'][key]['symbol_count'], 10)
+                documented_number: coverage['kinds'][key]['documented_symbol_count'],
+                total_number: coverage['kinds'][key]['symbol_count'],
             })
         }
 
