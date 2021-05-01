@@ -79,7 +79,7 @@ function run() {
             const html_output = template_1.getHtml(symbols);
             // Write the HTML output to a file if needed
             if (output_type === 'html') {
-                fs_1.writeFileSync(html_output, html_output, { encoding: 'utf8' });
+                fs_1.writeFileSync(html_path, html_output, { encoding: 'utf8' });
             }
             // Create the image if needed
             if (output_type === 'image') {
