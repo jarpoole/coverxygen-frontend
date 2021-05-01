@@ -118,7 +118,7 @@ export function get_html(symbols: Symbol[]): string {
         body += `
             <tr>
                 <td class="symbol-col">${symbol.name}</td>
-                <td class="ratio-col"><span class="red">${symbol.documented_number}</span>/${symbol.total_number}</td>
+                <td class="ratio-col"><span class="complete-documentation">${symbol.documented_number}</span>/${symbol.total_number}</td>
                 <td class="percentage-bar-col">
                     <div class="partial-percentage-bar" style="
                         --percentage-bar-color: ${symbol.documented_number === symbol.total_number ? 'green' : 'red'}; 
